@@ -54,8 +54,10 @@ document.addEventListener("DOMContentLoaded", function(event) { // DOMContentLoa
     function keyUp(event) {
         const key = (event.detail || event.which).toString();
         if (keyboardFrequencyMap[key] && activeOscillators[key]) {
-            activeOscillators[key].stop();
+            const osc = activeOscillators[key][0];
+            const gainNode = activeOscillators[key][1];
             delete activeOscillators[key];
+            gainNode.gain.setTargetAtTime(0, audioCtx.currentTime + .1, 0.1);
         }
     }
 
@@ -66,17 +68,14 @@ document.addEventListener("DOMContentLoaded", function(event) { // DOMContentLoa
 
         const gainNode = audioCtx.createGain();
         gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
-        gainNode.gain.exponentialRampToValueAtTime(1, audioCtx.currentTime + 1);
-        gainNode.gain.exponentialRampToValueAtTime(1, audioCtx.currentTime + 1);
+        gainNode.gain.exponentialRampToValueAtTime(1, audioCtx.currentTime + 0.1);
     
         osc.connect(gainNode); // Connect oscillator to gainNode
         gainNode.connect(globalGain); // Connect gainNode to globalGain
 
         // osc.connect(audioCtx.destination);
         osc.start();
-        activeOscillators[key] = osc
-
-        gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 2);
+        activeOscillators[key] = [osc, gainNode]
       }
 
 })
