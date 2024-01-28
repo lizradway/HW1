@@ -5,6 +5,7 @@ document.addEventListener("DOMContentLoaded", function(event) { // DOMContentLoa
     const globalGain = audioCtx.createGain(); //this will control the volume of all notes
     globalGain.gain.setValueAtTime(0.8, audioCtx.currentTime)
     globalGain.connect(audioCtx.destination);
+    let totalGain = 0;
 
     const keyboardFrequencyMap = {
         '90': 261.625565300598634,  //Z - C
@@ -57,6 +58,19 @@ document.addEventListener("DOMContentLoaded", function(event) { // DOMContentLoa
             const osc = activeOscillators[key][0];
             const gainNode = activeOscillators[key][1];
             delete activeOscillators[key];
+
+            const gainValue = gainNode.gain.value;
+            totalGain -= gainValue;
+            if (totalGain < 1) {
+                globalGain.gain.setValueAtTime(1, audioCtx.currentTime);
+            } else {
+                globalGain.gain.setValueAtTime(1 / totalGain, audioCtx.currentTime);
+            }
+            
+                    // Apply a quick linear ramp-down for smoother release
+        // gainNode.gain.linearRampToValueAtTime(0.0001, audioCtx.currentTime + 0.05);
+
+        // osc.stop(audioCtx.currentTime + 0.1);
             gainNode.gain.setTargetAtTime(0, audioCtx.currentTime + .1, 0.1);
         }
     }
@@ -67,15 +81,23 @@ document.addEventListener("DOMContentLoaded", function(event) { // DOMContentLoa
         osc.type = waveform;
 
         const gainNode = audioCtx.createGain();
+        // gainNode.gain.linearRampToValueAtTime(1, audioCtx.currentTime + 0.05);
         gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
-        gainNode.gain.exponentialRampToValueAtTime(1, audioCtx.currentTime + 0.1);
+        gainNode.gain.exponentialRampToValueAtTime(1, audioCtx.currentTime + 0.025);
     
         osc.connect(gainNode); // Connect oscillator to gainNode
         gainNode.connect(globalGain); // Connect gainNode to globalGain
 
-        // osc.connect(audioCtx.destination);
         osc.start();
         activeOscillators[key] = [osc, gainNode]
+
+        const gainValue = gainNode.gain.value;
+        totalGain += gainValue;
+        if (totalGain < 1) {
+            globalGain.gain.setValueAtTime(1, audioCtx.currentTime);
+        } else {
+            globalGain.gain.setValueAtTime(1 / totalGain, audioCtx.currentTime);
+        }
       }
 
 })
