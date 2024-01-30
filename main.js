@@ -67,7 +67,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
             } else {
                 globalGain.gain.setValueAtTime(1 / totalGain, audioCtx.currentTime);
             }
-            gainNode.gain.setTargetAtTime(0, audioCtx.currentTime + .1, 0.1);
+            gainNode.gain.setTargetAtTime(0, audioCtx.currentTime + .2, 0.1);
         }
     }
 
@@ -77,8 +77,8 @@ document.addEventListener("DOMContentLoaded", function(event) {
         osc.type = waveform;
 
         const gainNode = audioCtx.createGain();
-        gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
-        gainNode.gain.exponentialRampToValueAtTime(1, audioCtx.currentTime + 0.025);
+        gainNode.gain.setValueAtTime(0.2, audioCtx.currentTime);
+        // gainNode.gain.exponentialRampToValueAtTime(1, audioCtx.currentTime + 0.2);
     
         osc.connect(gainNode);
         gainNode.connect(globalGain); 
