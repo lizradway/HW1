@@ -1,8 +1,7 @@
-document.addEventListener("DOMContentLoaded", function(event) { // DOMContentLoaded wrapper ensures backend is loaded first
+document.addEventListener("DOMContentLoaded", function(event) { 
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
-
-    const globalGain = audioCtx.createGain(); //this will control the volume of all notes
+    const globalGain = audioCtx.createGain(); 
     globalGain.gain.setValueAtTime(0.8, audioCtx.currentTime)
     globalGain.connect(audioCtx.destination);
     let totalGain = 0;
@@ -39,11 +38,13 @@ document.addEventListener("DOMContentLoaded", function(event) { // DOMContentLoa
 
     activeOscillators = {}
 
-    const waveformControl = document.getElementById('waveform')
+    const waveformSelect = document.getElementById('waveform')
     let waveform = 'sine'
-    waveformControl.addEventListener('change', function(event) {
+    waveformSelect.addEventListener('change', function(event) {
       waveform = event.target.value
     });
+
+    checkIfChristmas();
 
     function keyDown(event) {
         const key = (event.detail || event.which).toString();
@@ -66,11 +67,6 @@ document.addEventListener("DOMContentLoaded", function(event) { // DOMContentLoa
             } else {
                 globalGain.gain.setValueAtTime(1 / totalGain, audioCtx.currentTime);
             }
-            
-                    // Apply a quick linear ramp-down for smoother release
-        // gainNode.gain.linearRampToValueAtTime(0.0001, audioCtx.currentTime + 0.05);
-
-        // osc.stop(audioCtx.currentTime + 0.1);
             gainNode.gain.setTargetAtTime(0, audioCtx.currentTime + .1, 0.1);
         }
     }
@@ -81,13 +77,11 @@ document.addEventListener("DOMContentLoaded", function(event) { // DOMContentLoa
         osc.type = waveform;
 
         const gainNode = audioCtx.createGain();
-        // gainNode.gain.linearRampToValueAtTime(1, audioCtx.currentTime + 0.05);
         gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
         gainNode.gain.exponentialRampToValueAtTime(1, audioCtx.currentTime + 0.025);
     
-        osc.connect(gainNode); // Connect oscillator to gainNode
-        gainNode.connect(globalGain); // Connect gainNode to globalGain
-
+        osc.connect(gainNode);
+        gainNode.connect(globalGain); 
         osc.start();
         activeOscillators[key] = [osc, gainNode]
 
@@ -100,5 +94,66 @@ document.addEventListener("DOMContentLoaded", function(event) { // DOMContentLoa
         }
       }
 
-})
 
+
+    function checkIfChristmas() {
+        const currentDate = new Date();
+    
+        if (currentDate.getMonth() === 11 && currentDate.getDate() === 25) {
+            const halfScreen = Math.floor(window.innerWidth / 2);
+            document.body.style.background = `linear-gradient(to right, green ${halfScreen}px, red ${halfScreen}px)`;
+            document.body.style.color = 'white'; 
+    
+            const description = document.getElementById('description');
+            if (description) {
+                description.parentNode.removeChild(description);
+            }
+            const waveform = document.getElementById('waveform');
+            if (waveform) {
+                waveform.parentNode.removeChild(waveform);
+            }
+            const waveformText = document.getElementById('waveformText');
+            if (waveformText) {
+                waveformText.parentNode.removeChild(waveformText);
+            }
+        
+            const jingleButton = document.createElement('button');
+            jingleButton.textContent = 'Play Jingle Bells!';
+            document.body.appendChild(jingleButton);
+
+            jingleButton.addEventListener('click', async function () {
+                playNoteForOneSecond('67');
+                await new Promise(resolve => setTimeout(resolve, 500));
+                playNoteForOneSecond('67');
+                await new Promise(resolve => setTimeout(resolve, 500));
+                playNoteForOneSecond('67');
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                playNoteForOneSecond('67');
+                await new Promise(resolve => setTimeout(resolve, 500));
+                playNoteForOneSecond('67');
+                await new Promise(resolve => setTimeout(resolve, 500));
+                playNoteForOneSecond('67');
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                playNoteForOneSecond('67');
+                await new Promise(resolve => setTimeout(resolve, 500));
+                playNoteForOneSecond('84');
+                await new Promise(resolve => setTimeout(resolve, 500));
+                playNoteForOneSecond('90');
+                await new Promise(resolve => setTimeout(resolve, 750));
+                playNoteForOneSecond('88');
+                await new Promise(resolve => setTimeout(resolve, 250));
+                playNoteForOneSecond('67');
+            });
+        }
+    }
+
+    function playNoteForOneSecond(key) {
+        keyDown({detail: key});
+        setTimeout(() => {
+            keyUp({detail: key});
+        }, 250);
+        
+    }
+
+
+})
